@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Expense & Fund Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Auth Modals -->
+    <div id="authOverlay" class="modal-overlay">
+        <div class="modal auth-modal" id="loginModal">
+            <h2>Welcome Back</h2>
+            <p class="subtitle">Log in to manage your finances</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Log In</button>
+            </form>
+            <p class="switch-auth">Don't have an account? <a href="#" id="showRegister">Register</a></p>
+        </div>
+
+        <div class="modal auth-modal" id="registerModal" style="display: none;">
+            <h2>Create Account</h2>
+            <p class="subtitle">Start your financial journey</p>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Name</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Register</button>
+            </form>
+            <p class="switch-auth">Already have an account? <a href="#" id="showLogin">Log In</a></p>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" class="app-container" style="display: none;">
+        
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">💸 Fund Manager</div>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="#" data-view="dashboard" class="active">📊 Dashboard</a></li>
+                <li><a href="#" data-view="add-transaction">➕ Add Record</a></li>
+                <li><a href="#" data-view="transactions">📜 History</a></li>
+                <li><a href="#" data-view="budget">🎯 Budget</a></li>
+                <li><a href="#" data-view="savings">💰 Savings</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar" id="userAvatar">U</div>
+                    <span id="userName">User</span>
+                </div>
+                <div class="footer-actions">
+                    <button id="themeToggle" class="btn-icon" title="Toggle Theme">🌓</button>
+                    <button id="logoutBtn" class="btn-icon text-danger" title="Logout">🚪</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <header class="mobile-header">
+                <div class="logo">💸 Fund Manager</div>
+                <button id="mobileMenuBtn" class="btn-icon">☰</button>
+            </header>
+
+            <div id="views">
+                <!-- Dashboard View -->
+                <section id="view-dashboard" class="view active">
+                    <div class="view-header">
+                        <h2>Dashboard</h2>
+                        <span class="date-display" id="currentDateDisplay"></span>
+                    </div>
+
+                    <div class="summary-cards">
+                        <div class="card summary-card balance">
+                            <div class="card-icon">💳</div>
+                            <div class="card-info">
+                                <h3>Current Balance</h3>
+                                <div class="amount" id="dashBalance">₹0</div>
+                            </div>
+                        </div>
+                        <div class="card summary-card income">
+                            <div class="card-icon">📈</div>
+                            <div class="card-info">
+                                <h3>Total Income</h3>
+                                <div class="amount text-success" id="dashIncome">₹0</div>
+                            </div>
+                        </div>
+                        <div class="card summary-card expense">
+                            <div class="card-icon">📉</div>
+                            <div class="card-info">
+                                <h3>Total Expenses</h3>
+                                <div class="amount text-danger" id="dashExpense">₹0</div>
+                            </div>
+                        </div>
+                        <div class="card summary-card savings">
+                            <div class="card-icon">🏦</div>
+                            <div class="card-info">
+                                <h3>Savings Goal</h3>
+                                <div class="amount text-accent" id="dashSavings">₹0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="card recent-transactions">
+                            <div class="card-header">
+                                <h3>Recent Transactions</h3>
+                                <a href="#" data-view="transactions" class="btn btn-sm btn-secondary">View All</a>
+                            </div>
+                            <div class="transaction-list" id="dashRecentTransactions">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <div class="dashboard-side-col">
+                            <div class="card budget-summary">
+                                <h3>Budget Overview</h3>
+                                <div id="dashBudgetWarning" class="warning-banner" style="display:none"></div>
+                                <div class="progress-container">
+                                    <div class="progress-labels">
+                                        <span>Spent: <span id="dashBudgetSpent">₹0</span></span>
+                                        <span>Limit: <span id="dashBudgetLimit">₹0</span></span>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div class="progress-fill" id="dashBudgetProgress"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card category-breakdown">
+                                <h3>Expense by Category</h3>
+                                <div id="dashCategoryList" class="category-list">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Add Transaction View -->
+                <section id="view-add-transaction" class="view">
+                    <div class="view-header">
+                        <h2>Add Transaction</h2>
+                    </div>
+                    
+                    <div class="card form-card">
+                        <form id="transactionForm">
+                            <div class="type-selector">
+                                <label class="radio-btn expense">
+                                    <input type="radio" name="transType" value="expense" checked>
+                                    <span>Expense</span>
+                                </label>
+                                <label class="radio-btn income">
+                                    <input type="radio" name="transType" value="income">
+                                    <span>Income</span>
+                                </label>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group flex-1">
+                                    <label for="transAmount">Amount (₹)</label>
+                                    <input type="number" id="transAmount" min="1" step="0.01" required placeholder="0.00">
+                                </div>
+                                <div class="form-group flex-1">
+                                    <label for="transDate">Date</label>
+                                    <input type="date" id="transDate" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="transCategory">Category</label>
+                                <select id="transCategory" required>
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="transDesc">Description</label>
+                                <input type="text" id="transDesc" required placeholder="e.g. Grocery shopping">
+                            </div>
+
+                            <div class="form-group checkbox-group" id="recurringGroup">
+                                <label>
+                                    <input type="checkbox" id="transRecurring"> 
+                                    Recurring Monthly Expense
+                                </label>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary w-100">Save Transaction</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Transactions History View -->
+                <section id="view-transactions" class="view">
+                    <div class="view-header">
+                        <h2>Transaction History</h2>
+                        <div class="header-actions">
+                            <button id="undoBtn" class="btn btn-secondary" title="Undo Last Transaction">↩ Undo</button>
+                            <button id="exportBtn" class="btn btn-secondary">📥 Export JSON</button>
+                        </div>
+                    </div>
+
+                    <div class="card filter-card">
+                        <div class="search-box">
+                            <input type="text" id="searchTrans" placeholder="🔍 Search description or category...">
+                        </div>
+                        <div class="filter-controls">
+                            <select id="filterType">
+                                <option value="all">All Types</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                            <select id="filterCategory">
+                                <option value="all">All Categories</option>
+                                <!-- Populated by JS -->
+                            </select>
+                            <select id="filterMonth">
+                                <option value="all">All Time</option>
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card table-card">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Category</th>
+                                        <th class="text-right">Amount</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsTableBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="noTransactionsMsg" class="empty-state" style="display: none;">
+                            <p>No transactions found.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Budget View -->
+                <section id="view-budget" class="view">
+                    <div class="view-header">
+                        <h2>Monthly Budget</h2>
+                    </div>
+
+                    <div class="budget-grid">
+                        <div class="card">
+                            <h3>Set Budget for <span id="budgetMonthDisplay">Current Month</span></h3>
+                            <form id="budgetForm" class="mt-4">
+                                <div class="form-group">
+                                    <label for="budgetAmount">Monthly Limit (₹)</label>
+                                    <input type="number" id="budgetAmount" min="0" required placeholder="0">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update Budget</button>
+                            </form>
+                        </div>
+
+                        <div class="card budget-status-card">
+                            <h3>Status</h3>
+                            <div id="budgetBigWarning" class="warning-banner mb-4"></div>
+                            <div class="budget-stats">
+                                <div class="stat">
+                                    <span class="label">Limit</span>
+                                    <span class="value" id="budgetStatusLimit">₹0</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Spent</span>
+                                    <span class="value text-danger" id="budgetStatusSpent">₹0</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Remaining</span>
+                                    <span class="value text-success" id="budgetStatusRemaining">₹0</span>
+                                </div>
+                            </div>
+                            <div class="progress-container mt-4">
+                                <div class="progress-track large">
+                                    <div class="progress-fill" id="budgetStatusProgress"></div>
+                                </div>
+                                <div class="progress-percentage text-center mt-2" id="budgetStatusPercentage">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Savings View -->
+                <section id="view-savings" class="view">
+                    <div class="view-header">
+                        <h2>Savings Goals</h2>
+                    </div>
+
+                    <div class="savings-grid">
+                        <div class="card">
+                            <h3>Set Goal</h3>
+                            <form id="savingsGoalForm" class="mt-4">
+                                <div class="form-group">
+                                    <label for="savingsGoalName">Goal Name</label>
+                                    <input type="text" id="savingsGoalName" required placeholder="e.g. Emergency Fund">
+                                </div>
+                                <div class="form-group">
+                                    <label for="savingsGoalAmount">Target Amount (₹)</label>
+                                    <input type="number" id="savingsGoalAmount" min="1" required placeholder="0">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Goal</button>
+                            </form>
+                        </div>
+
+                        <div class="card">
+                            <h3>Add Contribution</h3>
+                            <form id="savingsContributionForm" class="mt-4">
+                                <div class="form-group">
+                                    <label for="contributionAmount">Amount (₹)</label>
+                                    <input type="number" id="contributionAmount" min="1" required placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contributionNote">Note (Optional)</label>
+                                    <input type="text" id="contributionNote" placeholder="e.g. June salary part">
+                                </div>
+                                <button type="submit" class="btn btn-success">Add to Savings</button>
+                            </form>
+                        </div>
+
+                        <div class="card savings-progress-card full-width">
+                            <div class="savings-header flex-between">
+                                <div>
+                                    <h3 id="displayGoalName">No Goal Set</h3>
+                                    <p class="subtitle">Target: <span id="displayGoalAmount">₹0</span></p>
+                                </div>
+                                <div class="savings-stats text-right">
+                                    <div class="saved-amount text-accent">Saved: <span id="displaySavedAmount">₹0</span></div>
+                                    <div class="remaining-amount">Remaining: <span id="displayRemainingAmount">₹0</span></div>
+                                </div>
+                            </div>
+                            <div class="progress-container mt-4 mb-4">
+                                <div class="progress-track large">
+                                    <div class="progress-fill bg-accent" id="savingsProgressFill"></div>
+                                </div>
+                                <div class="progress-percentage text-center mt-2" id="savingsProgressPercentage">0%</div>
+                            </div>
+                            
+                            <h4>Contribution History</h4>
+                            <div class="contribution-list mt-2" id="contributionList">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Application Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/user.js"></script>
+    <script src="js/transaction.js"></script>
+    <script src="js/budget.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
