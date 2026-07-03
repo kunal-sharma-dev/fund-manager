@@ -30,16 +30,18 @@ A premium single-page JavaScript application for managing personal finances — 
 
 ## Project Structure
 
+```
 fund-manager/
-├── index.html          # Main entry point
-├── style.css           # Full design system
+├── index.html
+├── style.css
 └── js/
-├── app.js          # Main controller — DOM, events, views
-├── user.js         # Auth simulation (register/login/logout)
-├── transaction.js  # Transaction CRUD, filtering, search
-├── budget.js       # Budget and savings goal logic
-├── storage.js      # localStorage wrapper
-└── utils.js        # Constants, helpers, category metadata
+    ├── app.js
+    ├── user.js
+    ├── transaction.js
+    ├── budget.js
+    ├── storage.js
+    └── utils.js
+```
 
 ## JavaScript Concepts Demonstrated
 
@@ -53,8 +55,6 @@ fund-manager/
 - **Form Validation** — Type checking, required fields, numeric formatting
 
 ## How to Run
-
-Since this project uses ES6 Modules, serve it via a local server:
 
 ```bash
 # Option 1 — Python
@@ -71,7 +71,6 @@ Then open `http://localhost:8000` in your browser.
 
 ## Future Scope
 
-This project is designed to evolve. Planned extensions:
 - **Backend**: Node.js + Express REST API
 - **Database**: MongoDB for persistent multi-user storage
 - **Auth**: Real JWT-based authentication with bcrypt password hashing
